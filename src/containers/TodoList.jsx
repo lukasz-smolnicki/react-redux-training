@@ -1,16 +1,37 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-const TodoList = ({ todos }) => {
+import Todo from '../components/Todo'
+import { toggleTodo } from '../actions/todo.actions';
+import { AVAILABLE_FILTERS } from '../actions/todo.actions';
+
+const TodoList = ({ todos, toggleTodo }) => {
     return (
-        <pre>
-            {JSON.stringify(todos, null, 2)}
-        </pre>
+        <ul>
+            {todos.map(todo => (
+                <Todo key={todo.id} {...todo} onClick={() => toggleTodo(todo.id)} />
+            ))}
+        </ul>
     )
 }
 
+const filterTodos = (todos, filter) => {
+    switch (filter) {
+        case AVAILABLE_FILTERS.SHOW_COMPLETE:
+            return todos.filter(todo => todo.complete === true)
+        case AVAILABLE_FILTERS.SHOW_ACTIVE:
+            return todos.filter(todo => todo.complete === false)
+        default:
+            return todos;
+    }
+}
+
 const mapStateToProps = state => ({
-    todos: state.todos
+    todos: filterTodos(state.todos, state.filter)
 })
 
-export default connect(mapStateToProps)(TodoList)
+const mapDispatchToProps = {
+    toggleTodo
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList)
